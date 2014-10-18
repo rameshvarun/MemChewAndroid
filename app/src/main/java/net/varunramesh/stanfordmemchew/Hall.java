@@ -10,6 +10,10 @@ public class Hall {
     public String url;
     public boolean open;
 
+    public String meal;
+    public String mealid;
+    public int upvotes;
+
     public Hall(String id, String name, String url, boolean open){
         this.id = id;
         this.name = name;
