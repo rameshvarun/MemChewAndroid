@@ -2,5 +2,6 @@
 <resources>
 
     <item name="cardinal_red" type="color">#ffa71d38</item>
+    <item name="background" type="color">#dfdfdf</item>
 
 </resources>
