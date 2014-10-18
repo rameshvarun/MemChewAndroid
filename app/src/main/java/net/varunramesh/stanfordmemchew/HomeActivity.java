@@ -13,6 +13,9 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -55,7 +58,7 @@ public class HomeActivity extends Activity{
             hall_list.setAdapter(new EventAdapter(context, R.layout.hall_card, halls));
 
             ProgressBar spinner = (ProgressBar)findViewById(R.id.progressBar);
-            spinner.setVisibility(View.VISIBLE);
+            spinner.setVisibility(View.INVISIBLE);
 
             if(swiper != null) swiper.setRefreshing(false);
         }
@@ -69,13 +72,54 @@ public class HomeActivity extends Activity{
 
         @Override
         public View getView (int position, View convertView, ViewGroup parent) {
-            Hall hall = this.getItem(position);
+            final Hall hall = this.getItem(position);
             View item_view = super.getView(position, convertView, parent);
             ((TextView)item_view.findViewById(R.id.event_shortdesc)).setText(hall.name+"\nID: "+hall.id);
-            ((TextView)item_view.findViewById(R.id.event_desc)).setText(hall.url+"\nOpen: "+hall.open);
+            ((TextView)item_view.findViewById(R.id.event_desc)).setText("Open: "+hall.open);
 
-            if(hall.open)
-                ((View)item_view.findViewById(R.id.card_shadow)).setBackgroundResource(android.R.color.holo_blue_bright);
+            final TextView score = (TextView)item_view.findViewById(R.id.upvote_count);
+            score.setText(Integer.toString(hall.upvotes - hall.downvotes));
+
+            if(hall.open) {
+                ((View) item_view.findViewById(R.id.card_shadow)).setBackgroundResource(android.R.color.holo_blue_bright);
+                ((LinearLayout) item_view.findViewById(R.id.vote_block)).setVisibility(View.VISIBLE);
+
+                final MemChewService service = new MemChewService();
+                ((ImageButton) item_view.findViewById(R.id.upvote_button)).setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        new AsyncTask<Void, Void, Boolean>(){
+                            @Override
+                            protected Boolean doInBackground(Void... voids) { return service.rate(hall.mealid, true); }
+
+                            @Override
+                            protected void onPostExecute(Boolean success) {
+                                if(success) hall.upvotes++;
+                                score.setText(Integer.toString(hall.upvotes - hall.downvotes));
+                            }
+                        }.execute();
+                    }
+                });
+
+                ((ImageButton) item_view.findViewById(R.id.downvote_button)).setOnClickListener(new View.OnClickListener(){
+                    @Override
+                    public void onClick(View view) {
+                        new AsyncTask<Void, Void, Boolean>(){
+                            @Override
+                            protected Boolean doInBackground(Void... voids) {return service.rate(hall.mealid, false);}
+
+                            @Override
+                            protected void onPostExecute(Boolean success) {
+                                if(success) hall.downvotes++;
+                                score.setText(Integer.toString(hall.upvotes - hall.downvotes));
+                            }
+                        }.execute();
+                    }
+                });
+            }else {
+                ((View) item_view.findViewById(R.id.card_shadow)).setBackgroundColor(Color.rgb(145, 145, 145));
+                ((LinearLayout) item_view.findViewById(R.id.vote_block)).setVisibility(View.INVISIBLE);
+            }
 
             return item_view;
         }

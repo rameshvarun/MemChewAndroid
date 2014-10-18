@@ -1,5 +1,6 @@
 package net.varunramesh.stanfordmemchew;
 
+import android.provider.Settings;
 import android.util.Log;
 
 import com.google.gson.Gson;
@@ -33,7 +34,7 @@ public class MemChewService implements GenericService{
     public List<Hall> listHalls() {
         try {
             HttpClient httpClient = new DefaultHttpClient();
-            HttpGet httpGet = new HttpGet(BASE_URL + "halls");
+            HttpGet httpGet = new HttpGet(BASE_URL + "halls?user=" + Settings.Secure.ANDROID_ID);
 
             Log.d("MemChewService", httpGet.getRequestLine().toString());
 
@@ -50,5 +51,42 @@ public class MemChewService implements GenericService{
             e.printStackTrace();
             return null;
         }
+    }
+
+    public boolean rate(String meal_id, boolean upvote){
+        try {
+            HttpClient httpClient = new DefaultHttpClient();
+            String request = BASE_URL + "rate?item=" + meal_id + "&user="+Settings.Secure.ANDROID_ID+"&action=";
+            if(upvote) request += "upvote";
+            else request += "downvote";
+
+            HttpGet httpGet = new HttpGet(request);
+
+            Log.d("MemChewService", httpGet.getRequestLine().toString());
+
+            HttpResponse httpResponse = httpClient.execute(httpGet);
+            HttpEntity httpEntity = httpResponse.getEntity();
+            String string = EntityUtils.toString(httpEntity, "UTF-8");
+
+            JSONObject result = new JSONObject(string);
+            if(result.has("error")){
+                Log.d("MemChewService", result.getString("error"));
+                return false;
+            }
+
+            if(result.getString("result").equals("downvoted") && upvote){
+                Log.d("MemChewService", "Server downvoted dish while user upvoted.");
+            }else if(result.getString("result").equals("upvoted") && !upvote){
+                Log.d("MemChewService", "Server upvoted dish while user downvoted.");
+            }else {
+                Log.d("MemChewService", "Dish successfully "+result.getString("result")+".");
+                return true;
+            }
+
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 }

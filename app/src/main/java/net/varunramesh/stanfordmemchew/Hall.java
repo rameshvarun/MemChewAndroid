@@ -13,11 +13,14 @@ public class Hall {
     public String meal;
     public String mealid;
     public int upvotes;
+    public int downvotes;
+    public String rating;
 
-    public Hall(String id, String name, String url, boolean open){
+    public Hall(String id, String name, String url, int upvotes, boolean open){
         this.id = id;
         this.name = name;
         this.url = url;
+        this.upvotes = upvotes;
         this.open = open;
     }
 }
