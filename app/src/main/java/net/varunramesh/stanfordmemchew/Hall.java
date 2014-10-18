@@ -16,6 +16,9 @@ public class Hall {
     public int downvotes;
     public String rating;
 
+    public String closes;
+    public int comments;
+
     public Hall(String id, String name, String url, int upvotes, boolean open){
         this.id = id;
         this.name = name;

@@ -14,6 +14,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -22,6 +23,8 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import org.w3c.dom.Text;
 
 import java.util.List;
 
@@ -58,7 +61,7 @@ public class HomeActivity extends Activity{
             Log.v(TAG, halls.size() + " Halls Found...");
 
             ListView hall_list = (ListView)findViewById(R.id.hall_list);
-            hall_list.setAdapter(new EventAdapter(context, R.layout.hall_card, halls));
+            hall_list.setAdapter(new HallsAdapter(context, R.layout.hall_card, halls));
 
             ProgressBar spinner = (ProgressBar)findViewById(R.id.progressBar);
             spinner.setVisibility(View.INVISIBLE);
@@ -67,31 +70,41 @@ public class HomeActivity extends Activity{
         }
     }
 
-    public class EventAdapter extends ArrayAdapter<Hall> {
+    public class HallsAdapter extends ArrayAdapter<Hall> {
 
-        public EventAdapter(Context context, int resource, List<Hall> objects) {
-            super(context, resource, R.id.event_shortdesc, objects);
+        public HallsAdapter(Context context, int resource, List<Hall> objects) {
+            super(context, resource, R.id.hall_name, objects);
         }
 
         @Override
         public View getView (int position, View convertView, ViewGroup parent) {
             final Hall hall = this.getItem(position);
             View item_view = super.getView(position, convertView, parent);
-            ((TextView)item_view.findViewById(R.id.event_shortdesc)).setText(hall.name);
-            ((TextView)item_view.findViewById(R.id.event_desc)).setText("Open: "+hall.open);
+
+            final TextView hall_name = (TextView)item_view.findViewById(R.id.hall_name);
+            final TextView meal_desc = (TextView)item_view.findViewById(R.id.meal_desc);
+
+            hall_name.setText(hall.name);
 
             final TextView score = (TextView)item_view.findViewById(R.id.upvote_count);
             final LinearLayout voteBlock = (LinearLayout) item_view.findViewById(R.id.vote_block);
             final LinearLayout infoBlock = (LinearLayout) item_view.findViewById(R.id.info_block);
             final LinearLayout cardContent = (LinearLayout) item_view.findViewById(R.id.card_content);
+            final TextView closing_time = (TextView)item_view.findViewById(R.id.closing_time);
+            final TextView num_comments = (TextView)item_view.findViewById(R.id.num_comments);
+
+            final MemChewService service = new MemChewService();
 
             score.setText(Integer.toString(hall.upvotes - hall.downvotes));
 
             if(hall.open) {
                 ((View) item_view.findViewById(R.id.card_shadow)).setBackgroundResource(android.R.color.holo_blue_bright);
                 voteBlock.setVisibility(View.VISIBLE);
+                meal_desc.setVisibility(View.VISIBLE);
 
-                final MemChewService service = new MemChewService();
+                closing_time.setText("Closes in " + hall.closes);
+                num_comments.setText(hall.comments + " comments");
+
 
                 final ImageButton upvoteButton = (ImageButton) item_view.findViewById(R.id.upvote_button);
                 final ImageButton downvoteButton = (ImageButton) item_view.findViewById(R.id.downvote_button);
@@ -157,6 +170,10 @@ public class HomeActivity extends Activity{
             }else {
                 ((View) item_view.findViewById(R.id.card_shadow)).setBackgroundColor(getContext().getResources().getColor(R.color.card_shadow));
                 voteBlock.setVisibility(View.GONE);
+                meal_desc.setVisibility(View.GONE);
+                closing_time.setText("Closed");
+
+                num_comments.setText("");
             }
 
             return item_view;
@@ -184,7 +201,20 @@ public class HomeActivity extends Activity{
 
         new ListHallsTask(this, null).execute();
 
+        final ListView hall_list = (ListView)findViewById(R.id.hall_list);
+        hall_list.setClickable(true);
+        hall_list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                final HallsAdapter adapter = (HallsAdapter)(adapterView.getAdapter());
+                Hall hall = adapter.getItem(i);
+                if(hall.open) {
 
+                } else {
+                    Toast.makeText(context, hall.name + " is closed.", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
     }
 
     @Override
