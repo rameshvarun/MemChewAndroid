@@ -2,7 +2,9 @@ package net.varunramesh.stanfordmemchew;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -74,7 +76,7 @@ public class HomeActivity extends Activity{
         public View getView (int position, View convertView, ViewGroup parent) {
             final Hall hall = this.getItem(position);
             View item_view = super.getView(position, convertView, parent);
-            ((TextView)item_view.findViewById(R.id.event_shortdesc)).setText(hall.name+"\nID: "+hall.id);
+            ((TextView)item_view.findViewById(R.id.event_shortdesc)).setText(hall.name);
             ((TextView)item_view.findViewById(R.id.event_desc)).setText("Open: "+hall.open);
 
             final TextView score = (TextView)item_view.findViewById(R.id.upvote_count);
@@ -85,7 +87,21 @@ public class HomeActivity extends Activity{
                 ((LinearLayout) item_view.findViewById(R.id.vote_block)).setVisibility(View.VISIBLE);
 
                 final MemChewService service = new MemChewService();
-                ((ImageButton) item_view.findViewById(R.id.upvote_button)).setOnClickListener(new View.OnClickListener() {
+
+                final ImageButton upvoteButton = (ImageButton) item_view.findViewById(R.id.upvote_button);
+                final ImageButton downvoteButton = (ImageButton) item_view.findViewById(R.id.downvote_button);
+                final int upvoteColor = getContext().getResources().getColor(R.color.upvote_color);
+                final int downvoteColor = getContext().getResources().getColor(R.color.downvote_color);
+
+                if(hall.rating.equals("upvote")) {
+                    upvoteButton.setColorFilter(upvoteColor);
+                    score.setTextColor(upvoteColor);
+                } else if(hall.rating.equals("downvote")) {
+                    downvoteButton.setColorFilter(downvoteColor);
+                    score.setTextColor(downvoteColor);
+                }
+
+                upvoteButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
                         new AsyncTask<Void, Void, Boolean>(){
@@ -94,30 +110,43 @@ public class HomeActivity extends Activity{
 
                             @Override
                             protected void onPostExecute(Boolean success) {
-                                if(success) hall.upvotes++;
+                                if(success) {
+                                    hall.upvotes++;
+                                    hall.rating = "upvoted";
+                                    upvoteButton.setColorFilter(upvoteColor);
+                                    score.setTextColor(upvoteColor);
+                                }
                                 score.setText(Integer.toString(hall.upvotes - hall.downvotes));
                             }
                         }.execute();
                     }
                 });
 
-                ((ImageButton) item_view.findViewById(R.id.downvote_button)).setOnClickListener(new View.OnClickListener(){
+
+                downvoteButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        new AsyncTask<Void, Void, Boolean>(){
+                        new AsyncTask<Void, Void, Boolean>() {
                             @Override
-                            protected Boolean doInBackground(Void... voids) {return service.rate(hall.mealid, false);}
+                            protected Boolean doInBackground(Void... voids) {
+                                return service.rate(hall.mealid, false);
+                            }
 
                             @Override
                             protected void onPostExecute(Boolean success) {
-                                if(success) hall.downvotes++;
+                                if (success) {
+                                    hall.downvotes++;
+                                    hall.rating = "downvoted";
+                                    downvoteButton.setColorFilter(downvoteColor);
+                                    score.setTextColor(downvoteColor);
+                                }
                                 score.setText(Integer.toString(hall.upvotes - hall.downvotes));
                             }
                         }.execute();
                     }
                 });
             }else {
-                ((View) item_view.findViewById(R.id.card_shadow)).setBackgroundColor(Color.rgb(145, 145, 145));
+                ((View) item_view.findViewById(R.id.card_shadow)).setBackgroundColor(getContext().getResources().getColor(R.color.card_shadow));
                 ((LinearLayout) item_view.findViewById(R.id.vote_block)).setVisibility(View.INVISIBLE);
             }
 

@@ -3,5 +3,8 @@
 
     <item name="cardinal_red" type="color">#ffa71d38</item>
     <item name="background" type="color">#dfdfdf</item>
+    <item name="upvote_color" type="color">#ff8b60</item>
+    <item name="downvote_color" type="color">#9494FF</item>
+    <item name="card_shadow" type="color">#919191</item>
 
 </resources>
