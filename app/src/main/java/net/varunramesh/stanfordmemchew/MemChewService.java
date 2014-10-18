@@ -26,6 +26,7 @@ import java.util.List;
 public class MemChewService implements GenericService{
     private static String BASE_URL = "http://varunramesh.net:3000/";
     private static Gson gson = new Gson();
+    public static final String TAG = "MemChewService";
 
     public MemChewService(){
 
@@ -53,7 +54,12 @@ public class MemChewService implements GenericService{
         }
     }
 
-    public boolean rate(String meal_id, boolean upvote){
+    public static final int ALREADY_VOTED = 0;
+    public static final int UPVOTED = 1;
+    public static final int DOWNVOTED = 2;
+    public static final int ERROR = 3;
+
+    public int rate(String meal_id, boolean upvote){
         try {
             HttpClient httpClient = new DefaultHttpClient();
             String request = BASE_URL + "rate?item=" + meal_id + "&user="+Settings.Secure.ANDROID_ID+"&action=";
@@ -62,31 +68,36 @@ public class MemChewService implements GenericService{
 
             HttpGet httpGet = new HttpGet(request);
 
-            Log.d("MemChewService", httpGet.getRequestLine().toString());
+            Log.d(TAG, httpGet.getRequestLine().toString());
 
             HttpResponse httpResponse = httpClient.execute(httpGet);
             HttpEntity httpEntity = httpResponse.getEntity();
             String string = EntityUtils.toString(httpEntity, "UTF-8");
+            Log.d(TAG, string);
 
             JSONObject result = new JSONObject(string);
             if(result.has("error")){
-                Log.d("MemChewService", result.getString("error"));
-                return false;
+                if(result.getString("error").toLowerCase().equals("already voted")) {
+                    return ALREADY_VOTED;
+                }
+                else {
+                    Log.e(TAG, result.getString("error"));
+                    return ERROR;
+                }
             }
 
-            if(result.getString("result").equals("downvoted") && upvote){
-                Log.d("MemChewService", "Server downvoted dish while user upvoted.");
-            }else if(result.getString("result").equals("upvoted") && !upvote){
-                Log.d("MemChewService", "Server upvoted dish while user downvoted.");
-            }else {
-                Log.d("MemChewService", "Dish successfully "+result.getString("result")+".");
-                return true;
+            if(result.getString("result").toLowerCase().equals("downvoted"))
+                return DOWNVOTED;
+            else if(result.getString("result").toLowerCase().equals("upvoted"))
+                return UPVOTED;
+            else {
+                Log.e(TAG, "Unkown result");
+                return ERROR;
             }
-
         }
         catch (Exception e) {
             e.printStackTrace();
+            return ERROR;
         }
-        return false;
     }
 }

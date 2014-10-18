@@ -21,6 +21,7 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.List;
 
@@ -80,11 +81,15 @@ public class HomeActivity extends Activity{
             ((TextView)item_view.findViewById(R.id.event_desc)).setText("Open: "+hall.open);
 
             final TextView score = (TextView)item_view.findViewById(R.id.upvote_count);
+            final LinearLayout voteBlock = (LinearLayout) item_view.findViewById(R.id.vote_block);
+            final LinearLayout infoBlock = (LinearLayout) item_view.findViewById(R.id.info_block);
+            final LinearLayout cardContent = (LinearLayout) item_view.findViewById(R.id.card_content);
+
             score.setText(Integer.toString(hall.upvotes - hall.downvotes));
 
             if(hall.open) {
                 ((View) item_view.findViewById(R.id.card_shadow)).setBackgroundResource(android.R.color.holo_blue_bright);
-                ((LinearLayout) item_view.findViewById(R.id.vote_block)).setVisibility(View.VISIBLE);
+                voteBlock.setVisibility(View.VISIBLE);
 
                 final MemChewService service = new MemChewService();
 
@@ -104,17 +109,19 @@ public class HomeActivity extends Activity{
                 upvoteButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        new AsyncTask<Void, Void, Boolean>(){
+                        new AsyncTask<Void, Void, Integer>(){
                             @Override
-                            protected Boolean doInBackground(Void... voids) { return service.rate(hall.mealid, true); }
+                            protected Integer doInBackground(Void... voids) { return service.rate(hall.mealid, true); }
 
                             @Override
-                            protected void onPostExecute(Boolean success) {
-                                if(success) {
+                            protected void onPostExecute(Integer result) {
+                                if(result.equals(MemChewService.UPVOTED)) {
                                     hall.upvotes++;
                                     hall.rating = "upvoted";
                                     upvoteButton.setColorFilter(upvoteColor);
                                     score.setTextColor(upvoteColor);
+                                } else if(result.intValue() == MemChewService.ALREADY_VOTED) {
+                                    Toast.makeText(getContext(), "Already Voted.", Toast.LENGTH_SHORT).show();
                                 }
                                 score.setText(Integer.toString(hall.upvotes - hall.downvotes));
                             }
@@ -126,19 +133,21 @@ public class HomeActivity extends Activity{
                 downvoteButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        new AsyncTask<Void, Void, Boolean>() {
+                        new AsyncTask<Void, Void, Integer>() {
                             @Override
-                            protected Boolean doInBackground(Void... voids) {
+                            protected Integer doInBackground(Void... voids) {
                                 return service.rate(hall.mealid, false);
                             }
 
                             @Override
-                            protected void onPostExecute(Boolean success) {
-                                if (success) {
+                            protected void onPostExecute(Integer result) {
+                                if (result.equals(MemChewService.DOWNVOTED)) {
                                     hall.downvotes++;
                                     hall.rating = "downvoted";
                                     downvoteButton.setColorFilter(downvoteColor);
                                     score.setTextColor(downvoteColor);
+                                } else if(result.equals(MemChewService.ALREADY_VOTED)) {
+                                    Toast.makeText(getContext(), "Already Voted.", Toast.LENGTH_SHORT).show();
                                 }
                                 score.setText(Integer.toString(hall.upvotes - hall.downvotes));
                             }
@@ -147,7 +156,7 @@ public class HomeActivity extends Activity{
                 });
             }else {
                 ((View) item_view.findViewById(R.id.card_shadow)).setBackgroundColor(getContext().getResources().getColor(R.color.card_shadow));
-                ((LinearLayout) item_view.findViewById(R.id.vote_block)).setVisibility(View.INVISIBLE);
+                voteBlock.setVisibility(View.GONE);
             }
 
             return item_view;
