@@ -16,7 +16,14 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
+        <activity
+            android:name=".HallActivity"
+            android:label="@string/title_activity_hall"
+            android:parentActivityName=".HomeActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="net.varunramesh.stanfordmemchew.HomeActivity" />
+        </activity>
     </application>
 
     <uses-permission android:name="android.permission.INTERNET" />

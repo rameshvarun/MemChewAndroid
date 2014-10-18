@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">Stanford MemChew</string>
+    <string name="app_name">MemChew</string>
     <string name="hello_world">Welcome to real life</string>
     <string name="test">Lonestar</string>
     <string name="action_settings">Settings</string>
+    <string name="title_activity_hall">Loading...</string>
 
 </resources>

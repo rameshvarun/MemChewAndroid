@@ -2,6 +2,7 @@ package net.varunramesh.stanfordmemchew;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
@@ -79,7 +80,7 @@ public class HomeActivity extends Activity{
         @Override
         public View getView (int position, View convertView, ViewGroup parent) {
             final Hall hall = this.getItem(position);
-            View item_view = super.getView(position, convertView, parent);
+            final View item_view = super.getView(position, convertView, parent);
 
             final TextView hall_name = (TextView)item_view.findViewById(R.id.hall_name);
             final TextView meal_desc = (TextView)item_view.findViewById(R.id.meal_desc);
@@ -96,6 +97,20 @@ public class HomeActivity extends Activity{
             final MemChewService service = new MemChewService();
 
             score.setText(Integer.toString(hall.upvotes - hall.downvotes));
+
+            cardContent.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if (hall.open) {
+                        Log.d(TAG, "Launching Hall Activity");
+                        Intent intent = new Intent(getContext(), HallActivity.class);
+                        intent.putExtra("hallid", hall.id);
+                        getContext().startActivity(intent);
+                    } else {
+                        Toast.makeText(getContext(), hall.name + " is closed.", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
 
             if(hall.open) {
                 ((View) item_view.findViewById(R.id.card_shadow)).setBackgroundResource(android.R.color.holo_blue_bright);
@@ -183,6 +198,8 @@ public class HomeActivity extends Activity{
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setTitle("Dining Halls");
+
         setContentView(R.layout.activity_home);
         final Context context = this;
         final SwipeRefreshLayout swiper = (SwipeRefreshLayout) findViewById(R.id.swipe_container);
@@ -202,19 +219,6 @@ public class HomeActivity extends Activity{
         new ListHallsTask(this, null).execute();
 
         final ListView hall_list = (ListView)findViewById(R.id.hall_list);
-        hall_list.setClickable(true);
-        hall_list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                final HallsAdapter adapter = (HallsAdapter)(adapterView.getAdapter());
-                Hall hall = adapter.getItem(i);
-                if(hall.open) {
-
-                } else {
-                    Toast.makeText(context, hall.name + " is closed.", Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
     }
 
     @Override
