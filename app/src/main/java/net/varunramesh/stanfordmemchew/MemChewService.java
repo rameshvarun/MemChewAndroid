@@ -22,11 +22,15 @@ import java.util.List;
 /**
  * Created by varun on 10/17/14.
  */
-public class MemChewService {
-    public static String BASE_URL = "http://10.31.240.149:3000/";
-    public static Gson gson = new Gson();
+public class MemChewService implements GenericService{
+    private static String BASE_URL = "http://varunramesh.net:3000/";
+    private static Gson gson = new Gson();
 
-    public static List<Hall> listHalls() {
+    public MemChewService(){
+
+    }
+
+    public List<Hall> listHalls() {
         try {
             HttpClient httpClient = new DefaultHttpClient();
             HttpGet httpGet = new HttpGet(BASE_URL + "halls");
