@@ -14,9 +14,9 @@ public class HallActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_hall);
 
-        final String hallid = getIntent().getStringExtra("hallid");
+        final Hall hall = (Hall)getIntent().getSerializableExtra("hall");
+        setTitle(hall.name);
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -31,9 +31,6 @@ public class HallActivity extends Activity {
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-        if (id == R.id.action_settings) {
-            return true;
-        }
 
         return super.onOptionsItemSelected(item);
     }

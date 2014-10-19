@@ -104,7 +104,7 @@ public class HomeActivity extends Activity{
                     if (hall.open) {
                         Log.d(TAG, "Launching Hall Activity");
                         Intent intent = new Intent(getContext(), HallActivity.class);
-                        intent.putExtra("hallid", hall.id);
+                        intent.putExtra("hall", hall);
                         getContext().startActivity(intent);
                     } else {
                         Toast.makeText(getContext(), hall.name + " is closed.", Toast.LENGTH_SHORT).show();
@@ -234,9 +234,6 @@ public class HomeActivity extends Activity{
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-        if (id == R.id.action_settings) {
-            return true;
-        }
         return super.onOptionsItemSelected(item);
     }
 }

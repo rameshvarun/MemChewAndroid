@@ -1,9 +1,11 @@
 package net.varunramesh.stanfordmemchew;
 
+import java.io.Serializable;
+
 /**
  * Created by varun on 10/17/14.
  */
-public class Hall {
+public class Hall implements Serializable {
 
     public String id;
     public String name;
