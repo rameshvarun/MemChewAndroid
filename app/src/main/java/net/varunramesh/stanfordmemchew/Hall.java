@@ -21,11 +21,17 @@ public class Hall implements Serializable {
     public String closes;
     public int comments;
 
-    public Hall(String id, String name, String url, int upvotes, boolean open){
+    public Hall(String id, String name, String url, boolean open, String meal, String mealid, int upvotes, int downvotes, String rating, String closes, int comments){
         this.id = id;
         this.name = name;
         this.url = url;
         this.upvotes = upvotes;
+        this.meal = meal;
+        this.mealid = mealid;
+        this.downvotes = downvotes;
+        this.rating = rating;
+        this.closes = closes;
+        this.comments = comments;
         this.open = open;
     }
 }

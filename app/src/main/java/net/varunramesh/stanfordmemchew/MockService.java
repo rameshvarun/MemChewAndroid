@@ -19,7 +19,7 @@ public class MockService implements GenericService{
         Random r = new Random();
 
         for(int i=0; i<10; i++){
-            Hall temp = new Hall(String.valueOf(i), "Name"+i, "www.derp"+i+".com", r.nextInt(100),  r.nextBoolean());
+            Hall temp = new Hall(String.valueOf(i), "Name"+i, "www.derp"+i+".com", r.nextBoolean(), "bfast", "Derp", 4, 5, "bad", "4", 5);
             dummyData.add(temp);
         }
         return dummyData;
