@@ -125,6 +125,7 @@ public class HomeActivity extends Activity{
                 final ImageButton downvoteButton = (ImageButton) item_view.findViewById(R.id.downvote_button);
                 final int upvoteColor = getContext().getResources().getColor(R.color.upvote_color);
                 final int downvoteColor = getContext().getResources().getColor(R.color.downvote_color);
+                final int defaultColor = getContext().getResources().getColor(R.color.default_color);
 
                 if(hall.rating.equals("upvote")) {
                     upvoteButton.setColorFilter(upvoteColor);
@@ -132,6 +133,9 @@ public class HomeActivity extends Activity{
                 } else if(hall.rating.equals("downvote")) {
                     downvoteButton.setColorFilter(downvoteColor);
                     score.setTextColor(downvoteColor);
+                } else {
+                    downvoteButton.setColorFilter(defaultColor);
+                    score.setTextColor(defaultColor);
                 }
 
                 upvoteButton.setOnClickListener(new View.OnClickListener() {

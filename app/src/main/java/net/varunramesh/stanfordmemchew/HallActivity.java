@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
@@ -28,6 +29,7 @@ import java.util.List;
 public class HallActivity extends Activity {
 
     public static String TAG = "HallActivity";
+    private Hall hall;
 
     class UpdateTask extends AsyncTask<Void, Void, List<Comment>> {
         Context context;
@@ -74,12 +76,76 @@ public class HallActivity extends Activity {
             ((TextView) item_view.findViewById(R.id.comment_text)).setText(comment.text);
             ((TextView) item_view.findViewById(R.id.comment_time)).setText(comment.time);
 
+            final MemChewService service = new MemChewService();
+
+            // Code for handling the ratings
             final TextView score = (TextView)item_view.findViewById(R.id.upvote_count);
             score.setText(Integer.toString(comment.upvotes - comment.downvotes));
 
+            final ImageButton upvoteButton = (ImageButton) item_view.findViewById(R.id.upvote_button);
+            final ImageButton downvoteButton = (ImageButton) item_view.findViewById(R.id.downvote_button);
+            final int upvoteColor = getContext().getResources().getColor(R.color.upvote_color);
+            final int downvoteColor = getContext().getResources().getColor(R.color.downvote_color);
+            final int defaultColor = getContext().getResources().getColor(R.color.default_color);
 
+            if(comment.rating.equals("upvote")) {
+                upvoteButton.setColorFilter(upvoteColor);
+                score.setTextColor(upvoteColor);
+            } else if(comment.rating.equals("downvote")) {
+                downvoteButton.setColorFilter(downvoteColor);
+                score.setTextColor(downvoteColor);
+            } else {
+                downvoteButton.setColorFilter(defaultColor);
+                score.setTextColor(defaultColor);
+            }
 
+            upvoteButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    new AsyncTask<Void, Void, Integer>(){
+                        @Override
+                        protected Integer doInBackground(Void... voids) { return service.rate(comment.id, true); }
 
+                        @Override
+                        protected void onPostExecute(Integer result) {
+                            if(result.equals(MemChewService.UPVOTED)) {
+                                comment.upvotes++;
+                                comment.rating = "upvoted";
+                                upvoteButton.setColorFilter(upvoteColor);
+                                score.setTextColor(upvoteColor);
+                            } else if(result.intValue() == MemChewService.ALREADY_VOTED) {
+                                Toast.makeText(getContext(), "Already Voted.", Toast.LENGTH_SHORT).show();
+                            }
+                            score.setText(Integer.toString(comment.upvotes - comment.downvotes));
+                        }
+                    }.execute();
+                }
+            });
+
+            downvoteButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    new AsyncTask<Void, Void, Integer>() {
+                        @Override
+                        protected Integer doInBackground(Void... voids) {
+                            return service.rate(comment.id, false);
+                        }
+
+                        @Override
+                        protected void onPostExecute(Integer result) {
+                            if (result.equals(MemChewService.DOWNVOTED)) {
+                                comment.downvotes++;
+                                comment.rating = "downvoted";
+                                downvoteButton.setColorFilter(downvoteColor);
+                                score.setTextColor(downvoteColor);
+                            } else if(result.equals(MemChewService.ALREADY_VOTED)) {
+                                Toast.makeText(getContext(), "Already Voted.", Toast.LENGTH_SHORT).show();
+                            }
+                            score.setText(Integer.toString(comment.upvotes - comment.downvotes));
+                        }
+                    }.execute();
+                }
+            });
 
             return item_view;
         }
@@ -114,8 +180,9 @@ public class HallActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate (savedInstanceState);
         setContentView(R.layout.activity_hall);
+
         final Context context = this;
-        final Hall hall = (Hall)getIntent().getSerializableExtra("hall");
+        hall = (Hall)getIntent().getSerializableExtra("hall");
         setTitle(hall.name);
 
         ((ImageButton) findViewById(R.id.imageButton)).setOnClickListener(new View.OnClickListener() {
@@ -157,6 +224,12 @@ public class HallActivity extends Activity {
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
+
+        switch(id) {
+            case R.id.open_site:
+                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(hall.url)));
+                break;
+        }
 
         return super.onOptionsItemSelected(item);
     }
