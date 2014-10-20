@@ -24,4 +24,15 @@ public class MockService implements GenericService{
         }
         return dummyData;
     }
+
+    public List<Comment> listComments(){
+        List<Comment> badComments = new ArrayList<Comment>();
+        Random r = new Random();
+
+        for(int i=0; i<10; i++){
+            Comment temp = new Comment("ID"+i, "Happy customer no. "+i, "", "2 minutes ago", 3, 4, "none");
+            badComments.add(temp);
+        }
+        return badComments;
+    }
 }

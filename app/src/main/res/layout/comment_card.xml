@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:id="@+id/card_content"
+    android:paddingLeft="15dp"
+    android:paddingRight="15dp"
+    android:paddingBottom="5dp"
+    android:paddingTop="10dp"
+    android:background="@android:color/background_light">
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:gravity="right"
+        >
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="wrap_content"
+            android:layout_height="fill_parent"
+            android:background="@android:color/background_light"
+            android:id="@+id/info_block"
+            android:layout_weight="15"
+            android:gravity="left">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:id="@+id/comment_text"
+                android:textColor="@android:color/secondary_text_light"
+                android:text="Best meatloaf ever!"
+                android:layout_marginTop="5dp"
+                android:layout_weight="1"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:text="2 minutes ago"
+                android:id="@+id/closing_time"
+                android:layout_gravity="left"
+                android:layout_weight="0.1"
+                android:gravity="left" />
+
+        </LinearLayout>
+
+        <include layout="@layout/rating_widget"/>
+
+    </LinearLayout>
+
+
+
+</LinearLayout>

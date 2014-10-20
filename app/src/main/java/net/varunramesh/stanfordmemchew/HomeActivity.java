@@ -117,7 +117,7 @@ public class HomeActivity extends Activity{
                 voteBlock.setVisibility(View.VISIBLE);
                 meal_desc.setVisibility(View.VISIBLE);
 
-                closing_time.setText("Closes in " + hall.closes);
+                closing_time.setText("Closes " + hall.closes);
                 num_comments.setText(hall.comments + " comments");
 
 
