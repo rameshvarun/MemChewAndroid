@@ -25,12 +25,12 @@ public class MockService implements GenericService{
         return dummyData;
     }
 
-    public List<Comment> listComments(){
+    public List<Comment> listComments(String hall_id){
         List<Comment> badComments = new ArrayList<Comment>();
         Random r = new Random();
 
         for(int i=0; i<10; i++){
-            Comment temp = new Comment("ID"+i, "Happy customer no. "+i, "", "2 minutes ago", 3, 4, "none");
+            Comment temp = new Comment("ID"+i, "Happy customer no. "+i, "", r.nextInt(100)+" minutes ago", r.nextInt(10), r.nextInt(10), "none");
             badComments.add(temp);
         }
         return badComments;

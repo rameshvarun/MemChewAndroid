@@ -18,6 +18,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URLEncoder;
 import java.util.List;
 
 /**
@@ -54,10 +55,33 @@ public class MemChewService implements GenericService{
         }
     }
 
+    public List<Comment> listComments(String meal_id){
+        try {
+            HttpClient httpClient = new DefaultHttpClient();
+            HttpGet httpGet = new HttpGet(BASE_URL + "comments?user=" + Settings.Secure.ANDROID_ID+"&meal="+meal_id);
+
+            Log.d("MemChewService", httpGet.getRequestLine().toString());
+
+            HttpResponse httpResponse = httpClient.execute(httpGet);
+            HttpEntity httpEntity = httpResponse.getEntity();
+            String string = EntityUtils.toString(httpEntity, "UTF-8");
+
+            List<Comment> data = gson.fromJson(string, new TypeToken<List<Comment>>() {
+            }.getType());
+
+            return data;
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
     public static final int ALREADY_VOTED = 0;
     public static final int UPVOTED = 1;
     public static final int DOWNVOTED = 2;
     public static final int ERROR = 3;
+    public static final int COMMENTED = 4;
 
     public int rate(String meal_id, boolean upvote){
         try {
@@ -99,5 +123,27 @@ public class MemChewService implements GenericService{
             e.printStackTrace();
             return ERROR;
         }
+    }
+
+    public int comment(String meal_id, String text){
+
+        try {
+            HttpClient httpClient = new DefaultHttpClient();
+            String request = BASE_URL + "comment?meal=" + meal_id + "&user="+Settings.Secure.ANDROID_ID+"&comment="+ URLEncoder.encode(text, "UTF-8");
+            HttpGet httpGet = new HttpGet(request);
+
+            Log.d(TAG, httpGet.getRequestLine().toString());
+
+            HttpResponse httpResponse = httpClient.execute(httpGet);
+            HttpEntity httpEntity = httpResponse.getEntity();
+            String string = EntityUtils.toString(httpEntity, "UTF-8");
+            Log.d(TAG, string);
+
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            return ERROR;
+        }
+        return COMMENTED;
     }
 }

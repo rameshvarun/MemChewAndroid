@@ -42,7 +42,7 @@
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceSmall"
                 android:text="2 minutes ago"
-                android:id="@+id/closing_time"
+                android:id="@+id/comment_time"
                 android:layout_gravity="left"
                 android:layout_weight="0.1"
                 android:gravity="left" />

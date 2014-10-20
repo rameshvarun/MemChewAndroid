@@ -9,4 +9,6 @@ public interface GenericService {
 
     public List<Hall> listHalls();
 
+    public List<Comment> listComments(String meal_id);
+
 }

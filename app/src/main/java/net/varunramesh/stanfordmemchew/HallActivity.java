@@ -32,18 +32,20 @@ public class HallActivity extends Activity {
     class UpdateTask extends AsyncTask<Void, Void, List<Comment>> {
         Context context;
         SwipeRefreshLayout swiper;
+        Hall currentHall;
 
-        public UpdateTask(Context context, SwipeRefreshLayout swiper) {
+        public UpdateTask(Context context, SwipeRefreshLayout swiper, Hall currentHall) {
             this.context = context;
             this.swiper = swiper;
+            this.currentHall = currentHall;
         }
 
         @Override
         protected List<Comment> doInBackground(Void... voids) {
-            //MemChewService mcs = new MemChewService();
-            //List<Comment> halls = mcs.listHalls();
-            MockService ms = new MockService();
-            List<Comment> comments = ms.listComments();
+            MemChewService mcs = new MemChewService();
+            List<Comment> comments = mcs.listComments(currentHall.mealid);
+            //MockService ms = new MockService();
+            //List<Comment> comments = ms.listComments();
             return comments;
         }
 
@@ -70,10 +72,10 @@ public class HallActivity extends Activity {
             final View item_view = super.getView(position, convertView, parent);
 
             ((TextView) item_view.findViewById(R.id.comment_text)).setText(comment.text);
+            ((TextView) item_view.findViewById(R.id.comment_time)).setText(comment.time);
 
-
-
-
+            final TextView score = (TextView)item_view.findViewById(R.id.upvote_count);
+            score.setText(Integer.toString(comment.upvotes - comment.downvotes));
 
 
 
@@ -83,27 +85,54 @@ public class HallActivity extends Activity {
         }
     }
 
+    class CommentTask extends AsyncTask<Void, Void, Integer> {
+
+        String meal_id;
+        String text;
+        Hall hall;
+        Context context;
+
+        public CommentTask(Context context, String text, Hall hall){
+            this.text = text;
+            this.hall = hall;
+            this.context = context;
+        }
+
+        @Override
+        protected Integer doInBackground(Void... voids) {
+            MemChewService mcs = new MemChewService();
+            return mcs.comment(hall.mealid, text);
+        }
+
+        @Override
+        protected void onPostExecute(Integer result){
+            new UpdateTask(context, null, hall).execute();
+        }
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate (savedInstanceState);
         setContentView(R.layout.activity_hall);
-
+        final Context context = this;
         final Hall hall = (Hall)getIntent().getSerializableExtra("hall");
         setTitle(hall.name);
 
         ((ImageButton) findViewById(R.id.imageButton)).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                ((EditText) findViewById(R.id.editText)).setSelection(2);
+                new CommentTask(context, ((EditText) findViewById(R.id.editText)).getText().toString(), hall).execute();
+                ((EditText) findViewById(R.id.editText)).setText("");
             }
         });
 
         final SwipeRefreshLayout swiper = (SwipeRefreshLayout) findViewById(R.id.swipe_container);
+
         swiper.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener(){
             @Override
             public void onRefresh() {
                 swiper.setRefreshing(true);
-
+                new UpdateTask(context, swiper, hall).execute();
             }
         });
 
@@ -112,7 +141,7 @@ public class HallActivity extends Activity {
                 Color.rgb(126, 26, 11),
                 Color.rgb(177, 28, 8));
 
-        new UpdateTask(this, swiper).execute();
+        new UpdateTask(this, swiper, hall).execute();
     }
 
     @Override
