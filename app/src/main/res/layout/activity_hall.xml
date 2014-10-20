@@ -59,7 +59,9 @@
                 android:layout_height="wrap_content"
                 android:id="@+id/editText"
                 android:layout_weight="10"
-                android:hint="How's the food?" />
+                android:hint="How's the food?"
+                android:singleLine = "true"
+                android:imeOptions="actionSend"/>
 
             <ImageButton
                 android:layout_width="wrap_content"

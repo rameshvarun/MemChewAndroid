@@ -10,10 +10,12 @@ import android.os.Bundle;
 import android.support.v4.app.NavUtils;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -95,6 +97,7 @@ public class HallActivity extends Activity {
                 downvoteButton.setColorFilter(downvoteColor);
                 score.setTextColor(downvoteColor);
             } else {
+                upvoteButton.setColorFilter(defaultColor);
                 downvoteButton.setColorFilter(defaultColor);
                 score.setTextColor(defaultColor);
             }
@@ -176,20 +179,32 @@ public class HallActivity extends Activity {
         }
     }
 
+    public void submitComment() {
+        final EditText edit = ((EditText) findViewById(R.id.editText));
+        new CommentTask(this, edit.getText().toString(), hall).execute();
+        edit.setText("");
+        findViewById(R.id.comment_list).requestFocus();
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate (savedInstanceState);
         setContentView(R.layout.activity_hall);
 
-        final Context context = this;
+        final HallActivity context = this;
         hall = (Hall)getIntent().getSerializableExtra("hall");
         setTitle(hall.name);
 
         ((ImageButton) findViewById(R.id.imageButton)).setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
-                new CommentTask(context, ((EditText) findViewById(R.id.editText)).getText().toString(), hall).execute();
-                ((EditText) findViewById(R.id.editText)).setText("");
+            public void onClick(View view) { context.submitComment(); }
+        });
+
+        ((EditText)findViewById(R.id.editText)).setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
+                if(i == EditorInfo.IME_ACTION_SEND) context.submitComment();
+                return false;
             }
         });
 
