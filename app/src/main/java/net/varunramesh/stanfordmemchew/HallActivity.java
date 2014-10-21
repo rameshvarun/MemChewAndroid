@@ -1,5 +1,8 @@
 package net.varunramesh.stanfordmemchew;
 
+import android.animation.ArgbEvaluator;
+import android.animation.ObjectAnimator;
+import android.animation.ValueAnimator;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -37,16 +40,18 @@ public class HallActivity extends Activity {
         Context context;
         SwipeRefreshLayout swiper;
         Hall currentHall;
+        String idToFind;
 
-        public UpdateTask(Context context, SwipeRefreshLayout swiper, Hall currentHall) {
+        public UpdateTask(Context context, SwipeRefreshLayout swiper, Hall currentHall, String idToFind) {
             this.context = context;
             this.swiper = swiper;
             this.currentHall = currentHall;
+            this.idToFind = idToFind;
         }
 
         @Override
         protected List<Comment> doInBackground(Void... voids) {
-            MemChewService mcs = new MemChewService();
+            MemChewService mcs = new MemChewService(getApplicationContext());
             List<Comment> comments = mcs.listComments(currentHall.mealid);
             //MockService ms = new MockService();
             //List<Comment> comments = ms.listComments();
@@ -61,6 +66,16 @@ public class HallActivity extends Activity {
             comment_list.setAdapter(new CommentsAdapter(context, R.layout.comment_card, comments));
 
             if(swiper != null) swiper.setRefreshing(false);
+
+            if(idToFind != null){
+                for(int i=0; i<comment_list.getCount(); i++){
+                    Comment c = (Comment) comment_list.getItemAtPosition(i);
+                    if(c.id.equals(idToFind)){
+                        comment_list.setSelection(i);
+                        break;
+                    }
+                }
+            }
         }
     }
 
@@ -78,7 +93,7 @@ public class HallActivity extends Activity {
             ((TextView) item_view.findViewById(R.id.comment_text)).setText(comment.text);
             ((TextView) item_view.findViewById(R.id.comment_time)).setText(comment.time);
 
-            final MemChewService service = new MemChewService();
+            final MemChewService service = new MemChewService(getApplicationContext());
 
             // Code for handling the ratings
             final TextView score = (TextView)item_view.findViewById(R.id.upvote_count);
@@ -154,9 +169,8 @@ public class HallActivity extends Activity {
         }
     }
 
-    class CommentTask extends AsyncTask<Void, Void, Integer> {
+    class CommentTask extends AsyncTask<Void, Void, String> {
 
-        String meal_id;
         String text;
         Hall hall;
         Context context;
@@ -168,14 +182,14 @@ public class HallActivity extends Activity {
         }
 
         @Override
-        protected Integer doInBackground(Void... voids) {
-            MemChewService mcs = new MemChewService();
+        protected String doInBackground(Void... voids) {
+            MemChewService mcs = new MemChewService(getApplicationContext());
             return mcs.comment(hall.mealid, text);
         }
 
         @Override
-        protected void onPostExecute(Integer result){
-            new UpdateTask(context, null, hall).execute();
+        protected void onPostExecute(String result){
+            new UpdateTask(context, null, hall, result).execute();
         }
     }
 
@@ -214,7 +228,7 @@ public class HallActivity extends Activity {
             @Override
             public void onRefresh() {
                 swiper.setRefreshing(true);
-                new UpdateTask(context, swiper, hall).execute();
+                new UpdateTask(context, swiper, hall, null).execute();
             }
         });
 
@@ -223,7 +237,7 @@ public class HallActivity extends Activity {
                 Color.rgb(126, 26, 11),
                 Color.rgb(177, 28, 8));
 
-        new UpdateTask(this, swiper, hall).execute();
+        new UpdateTask(this, swiper, hall, null).execute();
     }
 
     @Override

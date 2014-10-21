@@ -1,5 +1,6 @@
 package net.varunramesh.stanfordmemchew;
 
+import android.content.Context;
 import android.provider.Settings;
 import android.util.Log;
 
@@ -29,14 +30,16 @@ public class MemChewService implements GenericService{
     private static Gson gson = new Gson();
     public static final String TAG = "MemChewService";
 
-    public MemChewService(){
+    private Context context;
 
+    public MemChewService(Context context){
+        this.context = context;
     }
 
     public List<Hall> listHalls() {
         try {
             HttpClient httpClient = new DefaultHttpClient();
-            HttpGet httpGet = new HttpGet(BASE_URL + "halls?user=" + Settings.Secure.ANDROID_ID);
+            HttpGet httpGet = new HttpGet(BASE_URL + "halls?user=" + getUniqueID());
 
             Log.d("MemChewService", httpGet.getRequestLine().toString());
 
@@ -58,7 +61,7 @@ public class MemChewService implements GenericService{
     public List<Comment> listComments(String meal_id){
         try {
             HttpClient httpClient = new DefaultHttpClient();
-            HttpGet httpGet = new HttpGet(BASE_URL + "comments?user=" + Settings.Secure.ANDROID_ID+"&meal="+meal_id);
+            HttpGet httpGet = new HttpGet(BASE_URL + "comments?user=" + getUniqueID()+"&meal="+meal_id);
 
             Log.d("MemChewService", httpGet.getRequestLine().toString());
 
@@ -86,7 +89,7 @@ public class MemChewService implements GenericService{
     public int rate(String meal_id, boolean upvote){
         try {
             HttpClient httpClient = new DefaultHttpClient();
-            String request = BASE_URL + "rate?item=" + meal_id + "&user="+Settings.Secure.ANDROID_ID+"&action=";
+            String request = BASE_URL + "rate?item=" + meal_id + "&user="+getUniqueID()+"&action=";
             if(upvote) request += "upvote";
             else request += "downvote";
 
@@ -125,25 +128,34 @@ public class MemChewService implements GenericService{
         }
     }
 
-    public int comment(String meal_id, String text){
+    public String comment(String meal_id, String text){
 
         try {
             HttpClient httpClient = new DefaultHttpClient();
-            String request = BASE_URL + "comment?meal=" + meal_id + "&user="+Settings.Secure.ANDROID_ID+"&comment="+ URLEncoder.encode(text, "UTF-8");
+            String request = BASE_URL + "comment?meal=" + meal_id + "&user="+getUniqueID()+"&comment="+ URLEncoder.encode(text, "UTF-8");
             HttpGet httpGet = new HttpGet(request);
 
             Log.d(TAG, httpGet.getRequestLine().toString());
 
             HttpResponse httpResponse = httpClient.execute(httpGet);
             HttpEntity httpEntity = httpResponse.getEntity();
-            String string = EntityUtils.toString(httpEntity, "UTF-8");
-            Log.d(TAG, string);
+            String response = EntityUtils.toString(httpEntity, "UTF-8");
+            Log.d(TAG, response);
+
+            Comment data = gson.fromJson(new JSONObject(response).getString("comment"), Comment.class);
+            return data.id;
 
         }
         catch (Exception e) {
             e.printStackTrace();
-            return ERROR;
+            return null;
         }
-        return COMMENTED;
+
+
+
+    }
+
+    public String getUniqueID(){
+        return Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
     }
 }

@@ -50,7 +50,7 @@ public class HomeActivity extends Activity{
 
         @Override
         protected List<Hall> doInBackground(Void... voids) {
-            MemChewService mcs = new MemChewService();
+            MemChewService mcs = new MemChewService(getApplicationContext());
             List<Hall> halls = mcs.listHalls();
             //MockService ms = new MockService();
             //List<Hall> halls = ms.listHalls();
@@ -94,7 +94,7 @@ public class HomeActivity extends Activity{
             final TextView closing_time = (TextView)item_view.findViewById(R.id.closing_time);
             final TextView num_comments = (TextView)item_view.findViewById(R.id.num_comments);
 
-            final MemChewService service = new MemChewService();
+            final MemChewService service = new MemChewService(getApplicationContext());
 
             score.setText(Integer.toString(hall.upvotes - hall.downvotes));
 

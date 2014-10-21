@@ -61,7 +61,8 @@
                 android:layout_weight="10"
                 android:hint="What's on your plate?"
                 android:singleLine = "true"
-                android:imeOptions="actionSend"/>
+                android:imeOptions="actionSend"
+                android:maxLength="250"/>
 
             <ImageButton
                 android:layout_width="wrap_content"
