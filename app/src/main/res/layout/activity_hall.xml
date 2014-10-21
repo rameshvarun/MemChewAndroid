@@ -59,7 +59,7 @@
                 android:layout_height="wrap_content"
                 android:id="@+id/editText"
                 android:layout_weight="10"
-                android:hint="How's the food?"
+                android:hint="What's on your plate?"
                 android:singleLine = "true"
                 android:imeOptions="actionSend"/>
 
