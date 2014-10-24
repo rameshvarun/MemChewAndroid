@@ -7,28 +7,47 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Rect;
+import android.hardware.Camera;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Debug;
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.support.v4.app.NavUtils;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.util.Base64;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.Surface;
+import android.view.SurfaceHolder;
+import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.w3c.dom.Text;
+
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 
@@ -104,7 +123,23 @@ public class HallActivity extends Activity {
                 }
             }
 
-            ((TextView) item_view.findViewById(R.id.comment_text)).setText(comment.text);
+            TextView comment_text = (TextView) item_view.findViewById(R.id.comment_text);
+            if(comment.text != null) {
+                comment_text.setVisibility(View.VISIBLE);
+                comment_text.setText(comment.text);
+            }
+            else comment_text.setVisibility(View.GONE);
+
+            ImageView comment_image = (ImageView) item_view.findViewById(R.id.comment_image);
+            if(comment.image != null) {
+                comment_image.setVisibility(View.VISIBLE);
+
+                byte[] bytes = Base64.decode(comment.image, Base64.DEFAULT);
+                Bitmap image = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+
+                comment_image.setImageBitmap(image);
+            } else comment_image.setVisibility(View.GONE);
+
             ((TextView) item_view.findViewById(R.id.comment_time)).setText(comment.time);
 
             final MemChewService service = new MemChewService(getApplicationContext());
@@ -188,19 +223,22 @@ public class HallActivity extends Activity {
     class CommentTask extends AsyncTask<Void, Void, String> {
 
         String text;
+        String image;
+
         Hall hall;
         Context context;
 
-        public CommentTask(Context context, String text, Hall hall){
+        public CommentTask(Context context, String text, Hall hall, String image){
             this.text = text;
             this.hall = hall;
             this.context = context;
+            this.image = image;
         }
 
         @Override
         protected String doInBackground(Void... voids) {
             MemChewService mcs = new MemChewService(getApplicationContext());
-            return mcs.comment(hall.mealid, text);
+            return mcs.comment(hall.mealid, text, image);
         }
 
         @Override
@@ -211,9 +249,61 @@ public class HallActivity extends Activity {
 
     public void submitComment() {
         final EditText edit = ((EditText) findViewById(R.id.editText));
-        new CommentTask(this, edit.getText().toString(), hall).execute();
+        new CommentTask(this, edit.getText().toString(), hall, null).execute();
         edit.setText("");
         findViewById(R.id.comment_list).requestFocus();
+    }
+
+    public static final int CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE = 100;
+    public void takePhoto() {
+        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+
+        File mediaStorageDir = this.getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        if(!mediaStorageDir.exists()) {
+            if(!mediaStorageDir.mkdirs()) {
+                Log.e(TAG, "Could not create directory to store external images.");
+                return;
+            }
+        }
+
+        File mediaFile = new File(mediaStorageDir.getPath() + File.separator + "capture.jpg");
+        if(mediaFile.exists()) mediaFile.delete();
+
+        intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(mediaFile));
+
+        startActivityForResult(intent, CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE);
+    }
+
+    public static final int MAX_DIMENSION = 800;
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE) {
+            if (resultCode == RESULT_OK) {
+                File mediaStorageDir = this.getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+                File mediaFile = new File(mediaStorageDir.getPath() + File.separator + "capture.jpg");
+
+                // Resize image
+                Bitmap capture = BitmapFactory.decodeFile(mediaFile.getPath());
+
+                float ratio = Math.min((float)MAX_DIMENSION / capture.getWidth(), (float)MAX_DIMENSION / capture.getHeight());
+                ratio = Math.min(ratio, 1.0f); // Clamp ratio to under 1.0
+
+                int w = Math.round(ratio * capture.getWidth());
+                int h = Math.round(ratio * capture.getHeight());
+                Bitmap resized = Bitmap.createScaledBitmap(capture, w, h, true);
+
+                // Compress to PNG
+                ByteArrayOutputStream out = new ByteArrayOutputStream();
+                resized.compress(Bitmap.CompressFormat.JPEG, 50, out);
+                byte[] bytes = out.toByteArray();
+
+                String base64 = Base64.encodeToString(bytes, Base64.DEFAULT);
+                Log.d(TAG, "Base 64 Encoded Image is " + base64.length() + " characters long.");
+
+                new CommentTask(this, null, hall, base64).execute();
+            }
+        }
     }
 
     @Override
@@ -225,9 +315,13 @@ public class HallActivity extends Activity {
         hall = (Hall)getIntent().getSerializableExtra("hall");
         setTitle(hall.name);
 
-        ((ImageButton) findViewById(R.id.imageButton)).setOnClickListener(new View.OnClickListener() {
+        ((ImageButton) findViewById(R.id.sendcomment)).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) { context.submitComment(); }
+        });
+        ((ImageButton) findViewById(R.id.takephoto)).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) { context.takePhoto(); }
         });
 
         ((EditText)findViewById(R.id.editText)).setOnEditorActionListener(new TextView.OnEditorActionListener() {

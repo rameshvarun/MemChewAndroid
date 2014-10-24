@@ -7,17 +7,17 @@ public class Comment {
 
     String id;
     String text;
-    String img;
+    String image;
     String time;
     int upvotes;
     int downvotes;
     String rating;
     String user;
 
-    public Comment(String id, String text, String img, String time, int upvotes, int downvotes, String rating){
+    public Comment(String id, String text, String image, String time, int upvotes, int downvotes, String rating){
         this.id = id;
         this.text = text;
-        this.img = img;
+        this.image = image;
         this.time = time;
         this.upvotes = upvotes;
         this.downvotes = downvotes;

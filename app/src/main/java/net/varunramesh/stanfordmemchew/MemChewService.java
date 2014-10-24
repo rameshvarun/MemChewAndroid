@@ -2,6 +2,7 @@ package net.varunramesh.stanfordmemchew;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.media.Image;
 import android.provider.Settings;
 import android.util.Log;
 
@@ -10,9 +11,13 @@ import com.google.gson.reflect.TypeToken;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 import org.json.JSONObject;
 
@@ -21,6 +26,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -140,16 +146,24 @@ public class MemChewService implements GenericService{
         }
     }
 
-    public String comment(String meal_id, String text){
+    public String comment(String meal_id, String text, String image){
 
         try {
             HttpClient httpClient = new DefaultHttpClient();
-            String request = BASE_URL + "comment?meal=" + meal_id + "&user="+getUniqueID()+"&comment="+ URLEncoder.encode(text, "UTF-8");
-            HttpGet httpGet = new HttpGet(request);
+            String request = BASE_URL + "comment";
+            HttpPost httpPost = new HttpPost(request);
 
-            Log.d(TAG, httpGet.getRequestLine().toString());
+            List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
+            nameValuePairs.add(new BasicNameValuePair("meal", meal_id));
+            nameValuePairs.add(new BasicNameValuePair("user", getUniqueID()));
+            if(image != null) nameValuePairs.add(new BasicNameValuePair("image", image));
+            if(text != null) nameValuePairs.add(new BasicNameValuePair("comment", text));
 
-            HttpResponse httpResponse = httpClient.execute(httpGet);
+            httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
+
+            Log.d(TAG, httpPost.getRequestLine().toString());
+
+            HttpResponse httpResponse = httpClient.execute(httpPost);
             HttpEntity httpEntity = httpResponse.getEntity();
             String response = EntityUtils.toString(httpEntity, "UTF-8");
             Log.d(TAG, response);
