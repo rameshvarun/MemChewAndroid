@@ -8,5 +8,6 @@
     <item name="upvote_color" type="color">#ff8b60</item>
     <item name="downvote_color" type="color">#9494FF</item>
     <item name="default_color" type="color">#000000</item>
+    <item name="user_comment_color" type="color">#fff2fcff</item>
 
 </resources>

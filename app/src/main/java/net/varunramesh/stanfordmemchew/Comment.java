@@ -12,6 +12,7 @@ public class Comment {
     int upvotes;
     int downvotes;
     String rating;
+    String user;
 
     public Comment(String id, String text, String img, String time, int upvotes, int downvotes, String rating){
         this.id = id;

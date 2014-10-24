@@ -1,6 +1,7 @@
 package net.varunramesh.stanfordmemchew;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.provider.Settings;
 import android.util.Log;
 
@@ -21,6 +22,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URLEncoder;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Created by varun on 10/17/14.
@@ -30,10 +32,20 @@ public class MemChewService implements GenericService{
     private static Gson gson = new Gson();
     public static final String TAG = "MemChewService";
 
+    public static String USER_ID_KEY = "user_id";
+
+
     private Context context;
 
     public MemChewService(Context context){
+
         this.context = context;
+        SharedPreferences prefs = context.getSharedPreferences("USER_ID", Context.MODE_PRIVATE);
+        if(!prefs.contains(USER_ID_KEY)){
+            SharedPreferences.Editor e = prefs.edit();
+            e.putString(USER_ID_KEY, UUID.randomUUID().toString());
+            e.commit();
+        }
     }
 
     public List<Hall> listHalls() {
@@ -84,7 +96,7 @@ public class MemChewService implements GenericService{
     public static final int UPVOTED = 1;
     public static final int DOWNVOTED = 2;
     public static final int ERROR = 3;
-    public static final int COMMENTED = 4;
+    //public static final int COMMENTED = 4;
 
     public int rate(String meal_id, boolean upvote){
         try {
@@ -156,6 +168,9 @@ public class MemChewService implements GenericService{
     }
 
     public String getUniqueID(){
-        return Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
+        String id = context.getSharedPreferences("USER_ID", Context.MODE_PRIVATE).getString(USER_ID_KEY, "NULL");
+        if(id.equals("NULL")) Log.d("MemChewService", "Device unique ID not found.");
+        return id;
+
     }
 }

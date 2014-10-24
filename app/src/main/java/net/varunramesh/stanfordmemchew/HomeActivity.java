@@ -130,11 +130,14 @@ public class HomeActivity extends Activity{
                 if(hall.rating.equals("upvote")) {
                     upvoteButton.setColorFilter(upvoteColor);
                     score.setTextColor(upvoteColor);
+                    downvoteButton.setColorFilter(defaultColor);
                 } else if(hall.rating.equals("downvote")) {
                     downvoteButton.setColorFilter(downvoteColor);
                     score.setTextColor(downvoteColor);
+                    upvoteButton.setColorFilter(defaultColor);
                 } else {
                     downvoteButton.setColorFilter(defaultColor);
+                    upvoteButton.setColorFilter(defaultColor);
                     score.setTextColor(defaultColor);
                 }
 

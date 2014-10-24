@@ -6,6 +6,7 @@ import android.animation.ValueAnimator;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -72,6 +73,7 @@ public class HallActivity extends Activity {
                     Comment c = (Comment) comment_list.getItemAtPosition(i);
                     if(c.id.equals(idToFind)){
                         comment_list.setSelection(i);
+
                         break;
                     }
                 }
@@ -81,6 +83,8 @@ public class HallActivity extends Activity {
 
     public class CommentsAdapter extends ArrayAdapter<Comment> {
 
+        SharedPreferences prefs = getSharedPreferences("USER_ID", MODE_PRIVATE);
+
         public CommentsAdapter(Context context, int resource, List<Comment> objects) {
             super(context, resource, R.id.comment_text, objects);
         }
@@ -89,6 +93,16 @@ public class HallActivity extends Activity {
         public View getView (int position, View convertView, ViewGroup parent) {
             final Comment comment = this.getItem(position);
             final View item_view = super.getView(position, convertView, parent);
+
+            if(prefs.contains(MemChewService.USER_ID_KEY)){
+                String id = prefs.getString(MemChewService.USER_ID_KEY, "NULL");
+                if(comment.user.toString().equals(id)){
+                    int color = getContext().getResources().getColor(R.color.user_comment_color);
+                    setCommentColor(item_view, color);
+                }else{
+                    setCommentColor(item_view, Color.WHITE);
+                }
+            }
 
             ((TextView) item_view.findViewById(R.id.comment_text)).setText(comment.text);
             ((TextView) item_view.findViewById(R.id.comment_time)).setText(comment.time);
@@ -107,9 +121,11 @@ public class HallActivity extends Activity {
 
             if(comment.rating.equals("upvote")) {
                 upvoteButton.setColorFilter(upvoteColor);
+                downvoteButton.setColorFilter(defaultColor);
                 score.setTextColor(upvoteColor);
             } else if(comment.rating.equals("downvote")) {
                 downvoteButton.setColorFilter(downvoteColor);
+                upvoteButton.setColorFilter(defaultColor);
                 score.setTextColor(downvoteColor);
             } else {
                 upvoteButton.setColorFilter(defaultColor);
@@ -261,5 +277,11 @@ public class HallActivity extends Activity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private void setCommentColor(View comment_view, int color){
+        comment_view.setBackgroundColor(color);
+        comment_view.findViewById(R.id.info_block).setBackgroundColor(color);
+        comment_view.findViewById(R.id.vote_block).setBackgroundColor(color);
     }
 }
