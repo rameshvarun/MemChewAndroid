@@ -9,14 +9,7 @@
         android:layout_width="fill_parent"
         android:layout_height="fill_parent">
 
-
-
-
-
-        <View
-            android:layout_width="fill_parent"
-            android:layout_height="100dp"
-            />
+        <include layout="@layout/hall_info"/>
 
         <View
             android:layout_width="fill_parent"

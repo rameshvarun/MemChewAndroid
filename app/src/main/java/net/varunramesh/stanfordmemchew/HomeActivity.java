@@ -32,6 +32,127 @@ import java.util.List;
 
 public class HomeActivity extends Activity{
 
+    public static View PopulateInfo(final Hall hall, View item_view, final Context context, boolean isHomepage) {
+
+        final TextView hall_name = (TextView)item_view.findViewById(R.id.hall_name);
+        final TextView meal_desc = (TextView)item_view.findViewById(R.id.meal_desc);
+
+        hall_name.setText(hall.name);
+
+        final TextView score = (TextView)item_view.findViewById(R.id.upvote_count);
+        final LinearLayout voteBlock = (LinearLayout) item_view.findViewById(R.id.vote_block);
+        final LinearLayout infoBlock = (LinearLayout) item_view.findViewById(R.id.info_block);
+        final LinearLayout cardContent = (LinearLayout) item_view.findViewById(R.id.card_content);
+        final TextView closing_time = (TextView)item_view.findViewById(R.id.closing_time);
+        final TextView num_comments = (TextView)item_view.findViewById(R.id.num_comments);
+
+        final MemChewService service = new MemChewService(context);
+
+        score.setText(Integer.toString(hall.upvotes - hall.downvotes));
+        if (isHomepage) {
+            cardContent.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if (hall.open) {
+                        Log.d(TAG, "Launching Hall Activity");
+                        Intent intent = new Intent(context, HallActivity.class);
+                        intent.putExtra("hall", hall);
+                        context.startActivity(intent);
+                    } else {
+                        Toast.makeText(context, hall.name + " is closed.", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
+        }
+        if(hall.open) {
+            if (isHomepage) ((View) item_view.findViewById(R.id.card_shadow)).setBackgroundResource(android.R.color.holo_blue_bright);
+            voteBlock.setVisibility(View.VISIBLE);
+            meal_desc.setVisibility(View.VISIBLE);
+
+            closing_time.setText("Closes " + hall.closes);
+            num_comments.setText(hall.comments + " comments");
+
+
+            final ImageButton upvoteButton = (ImageButton) item_view.findViewById(R.id.upvote_button);
+            final ImageButton downvoteButton = (ImageButton) item_view.findViewById(R.id.downvote_button);
+            final int upvoteColor = context.getResources().getColor(R.color.upvote_color);
+            final int downvoteColor = context.getResources().getColor(R.color.downvote_color);
+            final int defaultColor = context.getResources().getColor(R.color.default_color);
+
+            if(hall.rating.equals("upvote")) {
+                upvoteButton.setColorFilter(upvoteColor);
+                score.setTextColor(upvoteColor);
+                downvoteButton.setColorFilter(defaultColor);
+            } else if(hall.rating.equals("downvote")) {
+                downvoteButton.setColorFilter(downvoteColor);
+                score.setTextColor(downvoteColor);
+                upvoteButton.setColorFilter(defaultColor);
+            } else {
+                downvoteButton.setColorFilter(defaultColor);
+                upvoteButton.setColorFilter(defaultColor);
+                score.setTextColor(defaultColor);
+            }
+
+            upvoteButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    new AsyncTask<Void, Void, Integer>(){
+                        @Override
+                        protected Integer doInBackground(Void... voids) { return service.rate(hall.mealid, true); }
+
+                        @Override
+                        protected void onPostExecute(Integer result) {
+                            if(result.equals(MemChewService.UPVOTED)) {
+                                hall.upvotes++;
+                                hall.rating = "upvoted";
+                                upvoteButton.setColorFilter(upvoteColor);
+                                score.setTextColor(upvoteColor);
+                            } else if(result.intValue() == MemChewService.ALREADY_VOTED) {
+                                Toast.makeText(context, "Already Voted.", Toast.LENGTH_SHORT).show();
+                            }
+                            score.setText(Integer.toString(hall.upvotes - hall.downvotes));
+                        }
+                    }.execute();
+                }
+            });
+
+
+            downvoteButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    new AsyncTask<Void, Void, Integer>() {
+                        @Override
+                        protected Integer doInBackground(Void... voids) {
+                            return service.rate(hall.mealid, false);
+                        }
+
+                        @Override
+                        protected void onPostExecute(Integer result) {
+                            if (result.equals(MemChewService.DOWNVOTED)) {
+                                hall.downvotes++;
+                                hall.rating = "downvoted";
+                                downvoteButton.setColorFilter(downvoteColor);
+                                score.setTextColor(downvoteColor);
+                            } else if(result.equals(MemChewService.ALREADY_VOTED)) {
+                                Toast.makeText(context, "Already Voted.", Toast.LENGTH_SHORT).show();
+                            }
+                            score.setText(Integer.toString(hall.upvotes - hall.downvotes));
+                        }
+                    }.execute();
+                }
+            });
+        }else {
+            if (isHomepage) ((View) item_view.findViewById(R.id.card_shadow)).setBackgroundColor(context.getResources().getColor(R.color.card_shadow));
+            voteBlock.setVisibility(View.GONE);
+            meal_desc.setVisibility(View.GONE);
+            closing_time.setText("Closed");
+
+            num_comments.setText("");
+        }
+
+        return item_view;
+    }
+
     public static String TAG = "HallsActivity";
 
     class ListHallsTask extends AsyncTask<Void, Void, List<Hall>> {
@@ -78,127 +199,10 @@ public class HomeActivity extends Activity{
         }
 
         @Override
-        public View getView (int position, View convertView, ViewGroup parent) {
+        public View getView(int position, View convertView, ViewGroup parent) {
             final Hall hall = this.getItem(position);
             final View item_view = super.getView(position, convertView, parent);
-
-            final TextView hall_name = (TextView)item_view.findViewById(R.id.hall_name);
-            final TextView meal_desc = (TextView)item_view.findViewById(R.id.meal_desc);
-
-            hall_name.setText(hall.name);
-
-            final TextView score = (TextView)item_view.findViewById(R.id.upvote_count);
-            final LinearLayout voteBlock = (LinearLayout) item_view.findViewById(R.id.vote_block);
-            final LinearLayout infoBlock = (LinearLayout) item_view.findViewById(R.id.info_block);
-            final LinearLayout cardContent = (LinearLayout) item_view.findViewById(R.id.card_content);
-            final TextView closing_time = (TextView)item_view.findViewById(R.id.closing_time);
-            final TextView num_comments = (TextView)item_view.findViewById(R.id.num_comments);
-
-            final MemChewService service = new MemChewService(getApplicationContext());
-
-            score.setText(Integer.toString(hall.upvotes - hall.downvotes));
-
-            cardContent.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    if (hall.open) {
-                        Log.d(TAG, "Launching Hall Activity");
-                        Intent intent = new Intent(getContext(), HallActivity.class);
-                        intent.putExtra("hall", hall);
-                        getContext().startActivity(intent);
-                    } else {
-                        Toast.makeText(getContext(), hall.name + " is closed.", Toast.LENGTH_SHORT).show();
-                    }
-                }
-            });
-
-            if(hall.open) {
-                ((View) item_view.findViewById(R.id.card_shadow)).setBackgroundResource(android.R.color.holo_blue_bright);
-                voteBlock.setVisibility(View.VISIBLE);
-                meal_desc.setVisibility(View.VISIBLE);
-
-                closing_time.setText("Closes " + hall.closes);
-                num_comments.setText(hall.comments + " comments");
-
-
-                final ImageButton upvoteButton = (ImageButton) item_view.findViewById(R.id.upvote_button);
-                final ImageButton downvoteButton = (ImageButton) item_view.findViewById(R.id.downvote_button);
-                final int upvoteColor = getContext().getResources().getColor(R.color.upvote_color);
-                final int downvoteColor = getContext().getResources().getColor(R.color.downvote_color);
-                final int defaultColor = getContext().getResources().getColor(R.color.default_color);
-
-                if(hall.rating.equals("upvote")) {
-                    upvoteButton.setColorFilter(upvoteColor);
-                    score.setTextColor(upvoteColor);
-                    downvoteButton.setColorFilter(defaultColor);
-                } else if(hall.rating.equals("downvote")) {
-                    downvoteButton.setColorFilter(downvoteColor);
-                    score.setTextColor(downvoteColor);
-                    upvoteButton.setColorFilter(defaultColor);
-                } else {
-                    downvoteButton.setColorFilter(defaultColor);
-                    upvoteButton.setColorFilter(defaultColor);
-                    score.setTextColor(defaultColor);
-                }
-
-                upvoteButton.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        new AsyncTask<Void, Void, Integer>(){
-                            @Override
-                            protected Integer doInBackground(Void... voids) { return service.rate(hall.mealid, true); }
-
-                            @Override
-                            protected void onPostExecute(Integer result) {
-                                if(result.equals(MemChewService.UPVOTED)) {
-                                    hall.upvotes++;
-                                    hall.rating = "upvoted";
-                                    upvoteButton.setColorFilter(upvoteColor);
-                                    score.setTextColor(upvoteColor);
-                                } else if(result.intValue() == MemChewService.ALREADY_VOTED) {
-                                    Toast.makeText(getContext(), "Already Voted.", Toast.LENGTH_SHORT).show();
-                                }
-                                score.setText(Integer.toString(hall.upvotes - hall.downvotes));
-                            }
-                        }.execute();
-                    }
-                });
-
-
-                downvoteButton.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        new AsyncTask<Void, Void, Integer>() {
-                            @Override
-                            protected Integer doInBackground(Void... voids) {
-                                return service.rate(hall.mealid, false);
-                            }
-
-                            @Override
-                            protected void onPostExecute(Integer result) {
-                                if (result.equals(MemChewService.DOWNVOTED)) {
-                                    hall.downvotes++;
-                                    hall.rating = "downvoted";
-                                    downvoteButton.setColorFilter(downvoteColor);
-                                    score.setTextColor(downvoteColor);
-                                } else if(result.equals(MemChewService.ALREADY_VOTED)) {
-                                    Toast.makeText(getContext(), "Already Voted.", Toast.LENGTH_SHORT).show();
-                                }
-                                score.setText(Integer.toString(hall.upvotes - hall.downvotes));
-                            }
-                        }.execute();
-                    }
-                });
-            }else {
-                ((View) item_view.findViewById(R.id.card_shadow)).setBackgroundColor(getContext().getResources().getColor(R.color.card_shadow));
-                voteBlock.setVisibility(View.GONE);
-                meal_desc.setVisibility(View.GONE);
-                closing_time.setText("Closed");
-
-                num_comments.setText("");
-            }
-
-            return item_view;
+            return PopulateInfo(hall, item_view,getContext(), true);
         }
     }
 

@@ -349,6 +349,7 @@ public class HallActivity extends Activity {
                 Color.rgb(177, 28, 8));
 
         new UpdateTask(this, swiper, hall, null).execute();
+        HomeActivity.PopulateInfo(hall,findViewById(R.id.card_content), this, false);
     }
 
     @Override
