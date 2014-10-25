@@ -49,6 +49,7 @@ import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 
 public class HallActivity extends Activity {
@@ -367,6 +368,10 @@ public class HallActivity extends Activity {
         switch(id) {
             case R.id.open_site:
                 startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(hall.url)));
+                break;
+            case R.id.open_map:
+                String uri = String.format(Locale.ENGLISH, "geo:0,0?q=%f,%f(%s)", hall.latitude, hall.longitude, hall.name);
+                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(uri)));
                 break;
         }
 
