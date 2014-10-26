@@ -173,29 +173,30 @@ public class HomeActivity extends Activity{
         @Override
         protected void onPreExecute() {
             ProgressBar spinner = (ProgressBar)findViewById(R.id.progressBar);
-            spinner.setVisibility(View.VISIBLE);
         }
 
         @Override
         protected List<Hall> doInBackground(Void... voids) {
             MemChewService mcs = new MemChewService(getApplicationContext());
             List<Hall> halls = mcs.listHalls();
-            //MockService ms = new MockService();
-            //List<Hall> halls = ms.listHalls();
             return halls;
         }
 
         @Override
         protected void onPostExecute(List<Hall> halls) {
-            Log.v(TAG, halls.size() + " Halls Found...");
-
-            ListView hall_list = (ListView)findViewById(R.id.hall_list);
-            hall_list.setAdapter(new HallsAdapter(context, R.layout.hall_card, halls));
 
             ProgressBar spinner = (ProgressBar)findViewById(R.id.progressBar);
             spinner.setVisibility(View.INVISIBLE);
 
+            if(halls == null){
+                Toast.makeText(context, "Could not load dining halls.", Toast.LENGTH_SHORT).show();
+                return;
+            }
             if(swiper != null) swiper.setRefreshing(false);
+            Log.v(TAG, halls.size() + " Halls Found...");
+
+            ListView hall_list = (ListView)findViewById(R.id.hall_list);
+            hall_list.setAdapter(new HallsAdapter(context, R.layout.hall_card, halls));
         }
     }
 

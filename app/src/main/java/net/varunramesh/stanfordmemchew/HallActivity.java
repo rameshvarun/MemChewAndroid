@@ -76,18 +76,25 @@ public class HallActivity extends Activity {
         protected List<Comment> doInBackground(Void... voids) {
             MemChewService mcs = new MemChewService(getApplicationContext());
             List<Comment> comments = mcs.listComments(currentHall.mealid);
-            //MockService ms = new MockService();
-            //List<Comment> comments = ms.listComments();
 
             List<Hall> halls = mcs.listHalls();
-            for(Hall newHall : halls)
-                if(hall.id.equals(newHall.id)) hall = newHall;
-
-            return comments;
+            if(halls == null){
+                return null;
+            }else{
+                for(Hall newHall : halls)
+                    if(hall.id.equals(newHall.id)) hall = newHall;
+                return comments;
+            }
         }
 
         @Override
         protected void onPostExecute(List<Comment> comments) {
+
+            if(comments == null){
+                Toast.makeText(context, "Comments not found.", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
             Log.v(TAG, comments.size() + " Comments Found...");
 
             HomeActivity.PopulateInfo(hall, card_content, context, false);
