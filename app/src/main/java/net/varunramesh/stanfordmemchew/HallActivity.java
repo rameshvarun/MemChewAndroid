@@ -4,6 +4,7 @@ import android.animation.ArgbEvaluator;
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.app.Activity;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -358,7 +359,7 @@ public class HallActivity extends Activity {
                 Color.rgb(126, 26, 11),
                 Color.rgb(177, 28, 8));
 
-        HomeActivity.PopulateInfo(hall,card_content, this, false);
+        HomeActivity.PopulateInfo(hall, card_content, this, false);
         new UpdateTask(this, swiper, hall, null).execute();
     }
 
@@ -382,7 +383,11 @@ public class HallActivity extends Activity {
                 break;
             case R.id.open_map:
                 String uri = String.format(Locale.ENGLISH, "geo:0,0?q=%f,%f(%s)", hall.latitude, hall.longitude, hall.name);
-                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(uri)));
+                try {
+                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(uri)));
+                }catch(ActivityNotFoundException ex){
+                    Toast.makeText(this, "Could not find map application.", Toast.LENGTH_SHORT).show();
+                }
                 break;
         }
 
