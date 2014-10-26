@@ -24,6 +24,8 @@ public class Hall implements Serializable {
     public float latitude;
     public float longitude;
 
+    public String mealdesc;
+
     public Hall(String id, String name, String url, boolean open, String meal, String mealid, int upvotes, int downvotes, String rating, String closes, int comments){
         this.id = id;
         this.name = name;

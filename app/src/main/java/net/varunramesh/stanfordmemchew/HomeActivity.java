@@ -69,6 +69,13 @@ public class HomeActivity extends Activity{
             voteBlock.setVisibility(View.VISIBLE);
             meal_desc.setVisibility(View.VISIBLE);
 
+            if(hall.mealdesc != null) { // If we have a descriptionw
+                meal_desc.setText(hall.mealdesc);
+            } else { // Default text when there is no description
+                String text = "Open for " + Character.toUpperCase(hall.meal.charAt(0)) + hall.meal.substring(1);
+                meal_desc.setText(text);
+            }
+
             closing_time.setText("Closes " + hall.closes);
             num_comments.setText(hall.comments + " comments");
 
