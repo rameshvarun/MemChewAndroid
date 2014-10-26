@@ -56,6 +56,7 @@ public class HallActivity extends Activity {
 
     public static String TAG = "HallActivity";
     private Hall hall;
+    private View card_content;
 
     class UpdateTask extends AsyncTask<Void, Void, List<Comment>> {
         Context context;
@@ -76,12 +77,19 @@ public class HallActivity extends Activity {
             List<Comment> comments = mcs.listComments(currentHall.mealid);
             //MockService ms = new MockService();
             //List<Comment> comments = ms.listComments();
+
+            List<Hall> halls = mcs.listHalls();
+            for(Hall newHall : halls)
+                if(hall.id.equals(newHall.id)) hall = newHall;
+
             return comments;
         }
 
         @Override
         protected void onPostExecute(List<Comment> comments) {
             Log.v(TAG, comments.size() + " Comments Found...");
+
+            HomeActivity.PopulateInfo(hall, card_content, context, false);
 
             ListView comment_list = (ListView)findViewById(R.id.comment_list);
             comment_list.setAdapter(new CommentsAdapter(context, R.layout.comment_card, comments));
@@ -316,6 +324,8 @@ public class HallActivity extends Activity {
         hall = (Hall)getIntent().getSerializableExtra("hall");
         setTitle(hall.name);
 
+        card_content = findViewById(R.id.card_content);
+
         ((ImageButton) findViewById(R.id.sendcomment)).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) { context.submitComment(); }
@@ -348,8 +358,8 @@ public class HallActivity extends Activity {
                 Color.rgb(126, 26, 11),
                 Color.rgb(177, 28, 8));
 
+        HomeActivity.PopulateInfo(hall,card_content, this, false);
         new UpdateTask(this, swiper, hall, null).execute();
-        HomeActivity.PopulateInfo(hall,findViewById(R.id.card_content), this, false);
     }
 
     @Override
