@@ -65,7 +65,7 @@ public class HomeActivity extends Activity{
             });
         }
         if(hall.open) {
-            if (isHomepage) ((View) item_view.findViewById(R.id.card_shadow)).setBackgroundResource(android.R.color.holo_blue_bright);
+            if (isHomepage) ((View) item_view.findViewById(R.id.card_shadow)).setBackgroundResource(R.color.card_highlight);
             voteBlock.setVisibility(View.VISIBLE);
             meal_desc.setVisibility(View.VISIBLE);
 
