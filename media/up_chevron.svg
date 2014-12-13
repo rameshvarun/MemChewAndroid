@@ -13,7 +13,7 @@
    height="15"
    id="svg2"
    version="1.1"
-   inkscape:version="0.48.5 r10040"
+   inkscape:version="0.48.4 r9939"
    sodipodi:docname="up_chevron.svg">
   <defs
      id="defs4" />
@@ -24,15 +24,15 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="44.8"
-     inkscape:cx="17.702443"
-     inkscape:cy="7.600208"
+     inkscape:zoom="15.839192"
+     inkscape:cx="12.805949"
+     inkscape:cy="2.5795556"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
-     inkscape:window-width="1920"
+     inkscape:window-width="960"
      inkscape:window-height="1028"
-     inkscape:window-x="0"
+     inkscape:window-x="960"
      inkscape:window-y="24"
      inkscape:window-maximized="0" />
   <metadata
@@ -54,7 +54,7 @@
      transform="translate(0,-1037.3622)">
     <path
        style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:1.06612313px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       d="m 1.8963799,1048.2435 2.8587974,-0.041 6.4436387,-6.815 6.110869,6.8318 2.843671,0.041 -8.861791,-9.5134 z"
+       d="m 1.8963799,1049.6956 2.8587974,-0.041 6.4436387,-6.815 6.110869,6.8318 2.843671,0.041 -8.861791,-9.5134 z"
        id="path3009"
        inkscape:connector-curvature="0"
        sodipodi:nodetypes="ccccccc" />
