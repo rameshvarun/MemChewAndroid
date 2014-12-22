@@ -10,6 +10,8 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -30,7 +32,7 @@ import org.w3c.dom.Text;
 import java.util.List;
 
 
-public class HomeActivity extends Activity{
+public class HomeActivity extends ActionBarActivity {
 
     public static View PopulateInfo(final Hall hall, View item_view, final Context context, boolean isHomepage) {
 
@@ -172,7 +174,6 @@ public class HomeActivity extends Activity{
 
         @Override
         protected void onPreExecute() {
-            ProgressBar spinner = (ProgressBar)findViewById(R.id.progressBar);
         }
 
         @Override
@@ -184,9 +185,6 @@ public class HomeActivity extends Activity{
 
         @Override
         protected void onPostExecute(List<Hall> halls) {
-
-            ProgressBar spinner = (ProgressBar)findViewById(R.id.progressBar);
-            spinner.setVisibility(View.INVISIBLE);
 
             if(halls == null){
                 Toast.makeText(context, "Could not load dining halls.", Toast.LENGTH_SHORT).show();
@@ -217,9 +215,15 @@ public class HomeActivity extends Activity{
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_home);
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        if (toolbar != null) {
+            setSupportActionBar(toolbar);
+        }
+
         setTitle("Dining Halls");
 
-        setContentView(R.layout.activity_home);
         final Context context = this;
         final SwipeRefreshLayout swiper = (SwipeRefreshLayout) findViewById(R.id.swipe_container);
         swiper.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener(){

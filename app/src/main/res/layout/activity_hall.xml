@@ -9,6 +9,8 @@
         android:layout_width="fill_parent"
         android:layout_height="fill_parent">
 
+        <include layout="@layout/toolbar" />
+
         <include layout="@layout/hall_info"/>
 
         <View
@@ -45,7 +47,8 @@
             android:orientation="horizontal"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:padding="5dp">
+            android:padding="5dp"
+            android:background="@android:color/background_light">
 
             <EditText
                 android:layout_width="wrap_content"
@@ -55,7 +58,7 @@
                 android:hint="What's on your plate?"
                 android:singleLine = "true"
                 android:imeOptions="actionSend"
-                android:maxLength="250"/>
+                android:maxLength="250" />
 
             <ImageButton
                 android:layout_width="wrap_content"

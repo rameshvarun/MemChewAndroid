@@ -22,6 +22,8 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v4.app.NavUtils;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Base64;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -53,7 +55,7 @@ import java.util.List;
 import java.util.Locale;
 
 
-public class HallActivity extends Activity {
+public class HallActivity extends ActionBarActivity {
 
     public static String TAG = "HallActivity";
     private Hall hall;
@@ -327,6 +329,12 @@ public class HallActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate (savedInstanceState);
         setContentView(R.layout.activity_hall);
+
+        // Set the material design toolbar as the action bar
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        if (toolbar != null) {
+            setSupportActionBar(toolbar);
+        }
 
         final HallActivity context = this;
         hall = (Hall)getIntent().getSerializableExtra("hall");
