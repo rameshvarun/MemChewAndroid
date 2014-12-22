@@ -332,9 +332,9 @@ public class HallActivity extends ActionBarActivity {
 
         // Set the material design toolbar as the action bar
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        if (toolbar != null) {
-            setSupportActionBar(toolbar);
-        }
+        if (toolbar != null) setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         final HallActivity context = this;
         hall = (Hall)getIntent().getSerializableExtra("hall");
@@ -382,7 +382,7 @@ public class HallActivity extends ActionBarActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.hall, menu);
-        return true;
+        return super.onCreateOptionsMenu(menu);
     }
 
     @Override

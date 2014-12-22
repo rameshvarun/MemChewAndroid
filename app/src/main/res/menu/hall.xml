@@ -1,14 +1,15 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="net.varunramesh.stanfordmemchew.HallActivity" >
     <item android:id="@+id/open_site"
         android:title="Open Site"
         android:orderInCategory="100"
-        android:showAsAction="ifRoom"
+        app:showAsAction="ifRoom"
         />
     <item android:id="@+id/open_map"
         android:title="View in Map"
         android:orderInCategory="100"
-        android:showAsAction="ifRoom"
+        app:showAsAction="ifRoom"
         android:icon="@android:drawable/ic_dialog_map"/>
 </menu>
