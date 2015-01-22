@@ -91,9 +91,6 @@ public class HomeActivity extends ActionBarActivity {
             if(hall.rating.equals("upvote")) {
                 upvoteButton.setColorFilter(upvoteColor);
                 score.setTextColor(upvoteColor);
-            } else if(hall.rating.equals("downvote")) {
-                score.setTextColor(downvoteColor);
-                upvoteButton.setColorFilter(defaultColor);
             } else {
                 upvoteButton.setColorFilter(defaultColor);
                 score.setTextColor(defaultColor);
