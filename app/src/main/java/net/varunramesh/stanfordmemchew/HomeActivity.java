@@ -83,7 +83,7 @@ public class HomeActivity extends ActionBarActivity {
 
 
             final ImageButton upvoteButton = (ImageButton) item_view.findViewById(R.id.upvote_button);
-            final ImageButton downvoteButton = (ImageButton) item_view.findViewById(R.id.downvote_button);
+
             final int upvoteColor = context.getResources().getColor(R.color.upvote_color);
             final int downvoteColor = context.getResources().getColor(R.color.downvote_color);
             final int defaultColor = context.getResources().getColor(R.color.default_color);
@@ -91,13 +91,10 @@ public class HomeActivity extends ActionBarActivity {
             if(hall.rating.equals("upvote")) {
                 upvoteButton.setColorFilter(upvoteColor);
                 score.setTextColor(upvoteColor);
-                downvoteButton.setColorFilter(defaultColor);
             } else if(hall.rating.equals("downvote")) {
-                downvoteButton.setColorFilter(downvoteColor);
                 score.setTextColor(downvoteColor);
                 upvoteButton.setColorFilter(defaultColor);
             } else {
-                downvoteButton.setColorFilter(defaultColor);
                 upvoteButton.setColorFilter(defaultColor);
                 score.setTextColor(defaultColor);
             }
@@ -125,31 +122,6 @@ public class HomeActivity extends ActionBarActivity {
                 }
             });
 
-
-            downvoteButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    new AsyncTask<Void, Void, Integer>() {
-                        @Override
-                        protected Integer doInBackground(Void... voids) {
-                            return service.rate(hall.mealid, false);
-                        }
-
-                        @Override
-                        protected void onPostExecute(Integer result) {
-                            if (result.equals(MemChewService.DOWNVOTED)) {
-                                hall.downvotes++;
-                                hall.rating = "downvoted";
-                                downvoteButton.setColorFilter(downvoteColor);
-                                score.setTextColor(downvoteColor);
-                            } else if(result.equals(MemChewService.ALREADY_VOTED)) {
-                                Toast.makeText(context, "Already Voted.", Toast.LENGTH_SHORT).show();
-                            }
-                            score.setText(Integer.toString(hall.upvotes - hall.downvotes));
-                        }
-                    }.execute();
-                }
-            });
         }else {
             if (isHomepage) ((View) item_view.findViewById(R.id.card_shadow)).setBackgroundColor(context.getResources().getColor(R.color.card_shadow));
             voteBlock.setVisibility(View.GONE);

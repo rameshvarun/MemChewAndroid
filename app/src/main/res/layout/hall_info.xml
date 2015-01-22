@@ -45,7 +45,7 @@
 
         </LinearLayout>
 
-        <include layout="@layout/rating_widget"/>
+        <include layout="@layout/thumbs_up"/>
     </LinearLayout>
 
     <LinearLayout
