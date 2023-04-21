@@ -6,8 +6,8 @@ Other Repositories:
 - [MemChewIonic](https://github.com/rameshvarun/MemChewIonic) - Client Written in the Ionic Framework
 
 # Screenshots
-<img src="http://i.imgur.com/eNlvnPf.png" width="300px"/>
-<img src="http://i.imgur.com/cypgAvd.png" width="300px"/>
+<img src="./screenshots/eNlvnPf.png" width="300px"/>
+<img src="./screenshots/cypgAvd.png" width="300px"/>
 
 ## Setup (Android Studio)
 Clone the repository into a directory with `https://github.com/rameshvarun/MemChewAndroid.git`. From the Android Studio Startup menu, select Import Non-Android Studio Project, then navigate to the root of the cloned repository.
